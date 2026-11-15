@@ -50,14 +50,12 @@ TARGET_NO_BOOTLOADER := true
 # Resolution
 TARGET_SCREEN_HEIGHT := 2400
 TARGET_SCREEN_WIDTH := 1080
-
-# Display
 TARGET_SCREEN_DENSITY := 480
 
 # Kernel
 TARGET_KERNEL_ARCH := arm64
-BOARD_RAMDISK_USE_LZ4 := true
 TARGET_KERNEL_HEADER_ARCH := arm64
+BOARD_RAMDISK_USE_LZ4 := true
 BOARD_BOOT_HEADER_VERSION := 4
 BOARD_INIT_BOOT_HEADER_VERSION := 4
 BOARD_INCLUDE_DTB_IN_BOOTIMG := true
@@ -69,7 +67,6 @@ BOARD_PAGE_SIZE := 4096
 BOARD_KERNEL_OFFSET := 0x00008000
 BOARD_RAMDISK_OFFSET := 0x26F08000
 BOARD_TAGS_OFFSET := 0x07C88000
-BOARD_BOOT_HEADER_VERSION := 4
 BOARD_DTB_SIZE := 327372
 BOARD_DTB_OFFSET := 0x07C88000
 BOARD_VENDOR_CMDLINE := bootopt=64S3,32N2,64N2
@@ -82,15 +79,14 @@ BOARD_MKBOOTIMG_ARGS += --tags_offset $(BOARD_TAGS_OFFSET)
 BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
 BOARD_MKBOOTIMG_ARGS += --dtb_offset $(BOARD_DTB_OFFSET)
 
-TARGET_NO_KERNEL_OVERRIDE := true
+TARGET_NO_KERNEL_OVERRIDE := false
 TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/kernel
 BOARD_PREBUILT_DTBOIMAGE := $(DEVICE_PATH)/prebuilt/dtbo.img
 BOARD_PREBUILT_DTBIMAGE_DIR := $(DEVICE_PATH)/prebuilt/dtb
 
 # Stock vendor ramdisk
 BOARD_PREBUILT_VENDOR_RAMDISK := \
-    $(DEVICE_PATH)/prebuilt/ramdisk_touchenabled.cpio.lz4
-
+    $(DEVICE_PATH)/prebuilt/stock_ramdisk.cpio.lz4
 
 # ============================================================
 # vendor_dlkm modules
@@ -103,7 +99,6 @@ BOARD_VENDOR_KERNEL_MODULES := \
     $(sort $(addprefix $(KERNEL_PATH)/modules/vendor_dlkm/, \
     $(notdir $(BOARD_VENDOR_KERNEL_MODULES_LOAD))))
 
-
 # ============================================================
 # Vendor boot modules
 #
@@ -114,23 +109,20 @@ BOARD_VENDOR_KERNEL_MODULES := \
 BOARD_VENDOR_RAMDISK_KERNEL_MODULES_LOAD :=
 BOARD_VENDOR_RAMDISK_KERNEL_MODULES :=
 
-
 # ============================================================
 # Recovery-only modules
 # ============================================================
 
 BOARD_VENDOR_RAMDISK_RECOVERY_KERNEL_MODULES_LOAD := \
     $(strip $(shell cat \
-    $(KERNEL_PATH)/modules/modules.load.recovery))
+    $(KERNEL_PATH)/modules/modules.load))
 
 BOARD_VENDOR_RAMDISK_RECOVERY_KERNEL_MODULES := \
     $(addprefix $(KERNEL_PATH)/modules/vendor_boot/, \
     $(notdir $(BOARD_VENDOR_RAMDISK_RECOVERY_KERNEL_MODULES_LOAD)))
 
-
-
 # Partitions
-BOARD_FLASH_BLOCK_SIZE := 262144 # (BOARD_KERNEL_PAGESIZE * 64)
+BOARD_FLASH_BLOCK_SIZE := 262144
 BOARD_BOOTIMAGE_PARTITION_SIZE := 67108864
 BOARD_VENDOR_BOOTIMAGE_PARTITION_SIZE := 67108864
 BOARD_HAS_LARGE_FILESYSTEM := true
@@ -142,6 +134,12 @@ BOARD_SUPER_PARTITION_SIZE := 4844463520
 BOARD_SUPER_PARTITION_GROUPS := lava_dynamic_partitions
 BOARD_LAVA_DYNAMIC_PARTITIONS_PARTITION_LIST := system system_ext vendor product odm vendor_dlkm odm_dlkm
 BOARD_LAVA_DYNAMIC_PARTITIONS_SIZE := 4844463520
+
+
+# PRODUCT_OTA_ENFORCE_VINTF_KERNEL_REQUIREMENTS := false
+TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/kernel
+BOARD_KERNEL_IMAGE_NAME := kernel
+
 
 # Properties
 TARGET_SYSTEM_PROP += $(DEVICE_PATH)/system.prop
@@ -158,9 +156,6 @@ TARGET_USERIMAGES_USE_EXT4 := true
 TARGET_USERIMAGES_USE_F2FS := true
 TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery/root/recovery.fstab
 
-# Security patch level
-VENDOR_SECURITY_PATCH := 2021-08-01
-
 # Verified Boot
 BOARD_AVB_ENABLE := true
 BOARD_AVB_MAKE_VBMETA_IMAGE_ARGS += --flags 3
@@ -169,6 +164,19 @@ BOARD_AVB_MAKE_VBMETA_IMAGE_ARGS += --flags 3
 PLATFORM_SECURITY_PATCH := 2099-12-31
 VENDOR_SECURITY_PATCH := 2099-12-31
 PLATFORM_VERSION := 16.1.0
+
+# ============================================================
+# Encryption / FBE
+# ============================================================
+
+#TW_INCLUDE_CRYPTO := true
+#TW_INCLUDE_CRYPTO_FBE := true
+#TW_INCLUDE_FBE_METADATA_DECRYPT := true
+#TW_USE_FSCRYPT_POLICY := 2
+
+BOARD_USES_METADATA_PARTITION := true
+BOARD_ROOT_EXTRA_FOLDERS += metadata
+TW_PREPARE_DATA_MEDIA_EARLY := true
 
 # TWRP Configuration
 TW_THEME := portrait_hdpi
@@ -182,7 +190,6 @@ TW_INCLUDE_REPACKTOOLS := true
 TW_DEFAULT_BRIGHTNESS := 1300
 TW_MAX_BRIGHTNESS := 1800
 TW_NO_SCREEN_BLANK := true
-TW_SCREEN_BLANK_ON_BOOT := true
 TW_CUSTOM_BATTERY_PATH := "/sys/class/power_supply/battery"
 TW_Y_OFFSET := 95
 TW_H_OFFSET := -95
@@ -190,17 +197,15 @@ TW_H_OFFSET := -95
 # include python, for ABX conversion
 TW_INCLUDE_PYTHON := true
 
-# Modules
-TW_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
-TW_LOAD_VENDOR_MODULES := $(shell echo \"$(shell ls $(DEVICE_PATH)/recovery/root/vendor/lib/modules)\")
+# TW_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
+# TW_LOAD_VENDOR_MODULES := ...
+# TW_LOAD_VENDOR_BOOT_MODULES := true
 
 # Vendor_boot recovery ramdisk
 BOARD_USES_RECOVERY_AS_BOOT := false
-BOARD_USES_GENERIC_KERNEL_IMAGE := true
 BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
 BOARD_EXCLUDE_KERNEL_FROM_RECOVERY_IMAGE :=
 BOARD_MOVE_GSI_AVB_KEYS_TO_VENDOR_BOOT :=
-TW_LOAD_VENDOR_BOOT_MODULES := true
 BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := true
 
 # ADB
@@ -208,5 +213,3 @@ TW_INCLUDE_ADB := true
 TW_INCLUDE_FASTBOOTD := true
 TWRP_INCLUDE_LOGCAT := true
 TWRP_USES_LOGD := true
-
-
