@@ -29,15 +29,20 @@ cc_library_shared {
     header_libs: ["device_kernel_headers"],
 
     shared_libs: [
+        "libbase",              // <-- ADDED: resolves all android::base::* undefined symbols
         "liblog",
         "libhidlbase",
         "libhardware",
         "libutils",
+        "libcutils",            // <-- ADDED: used by libboot_control (property/socket helpers)
+        "libselinux",           // <-- ADDED: used by libboot_control for SELinux checks
+        "libext4_utils",        // <-- ADDED: used by bootloader_message for ext4 operations
         "android.hardware.boot@1.0",
         "android.hardware.boot@1.1",
         "android.hardware.boot@1.2",
     ],
     static_libs: [
+        "libbootloader_message", // <-- ADDED: explicit (was pulled transitively, now declared)
         "libboot_control",
         "libfstab",
     ],
