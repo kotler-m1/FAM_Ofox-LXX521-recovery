@@ -85,8 +85,28 @@ BOARD_PREBUILT_DTBOIMAGE := $(DEVICE_PATH)/prebuilt/dtbo.img
 BOARD_PREBUILT_DTBIMAGE_DIR := $(DEVICE_PATH)/prebuilt/dtb
 
 # Stock vendor ramdisk
-BOARD_PREBUILT_VENDOR_RAMDISK := \
-    $(DEVICE_PATH)/prebuilt/stock_ramdisk.cpio.lz4
+# ------------------------------------------------------------
+# COMMENTED OUT: When BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT
+# is true, this variable is ignored by the build system. Instead,
+# the stock ramdisk is now declared as a fragment below.
+# ------------------------------------------------------------
+# BOARD_PREBUILT_VENDOR_RAMDISK := \
+#     $(DEVICE_PATH)/prebuilt/stock_ramdisk.cpio.lz4
+
+# ============================================================
+# Vendor boot ramdisk fragments
+#
+# Include the prebuilt stock vendor ramdisk as a separate
+# fragment so it ships alongside the recovery ramdisk in
+# vendor_boot.img. Without this, the build system only packs
+# the recovery ramdisk (~6 MB) and silently drops the stock
+# vendor ramdisk.
+# ============================================================
+
+BOARD_VENDOR_RAMDISK_FRAGMENTS += stock
+
+BOARD_VENDOR_RAMDISK_FRAGMENT.stock.MKBOOTIMG_ARGS += --ramdisk_type PLATFORM
+BOARD_VENDOR_RAMDISK_FRAGMENT.stock.prebuilt_ramdisk := $(DEVICE_PATH)/prebuilt/stock_ramdisk.cpio.lz4
 
 # ============================================================
 # vendor_dlkm modules
