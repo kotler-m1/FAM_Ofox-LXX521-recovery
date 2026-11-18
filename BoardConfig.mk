@@ -98,15 +98,13 @@ BOARD_PREBUILT_DTBIMAGE_DIR := $(DEVICE_PATH)/prebuilt/dtb
 #
 # Include the prebuilt stock vendor ramdisk as a separate
 # fragment so it ships alongside the recovery ramdisk in
-# vendor_boot.img. Without this, the build system only packs
-# the recovery ramdisk (~6 MB) and silently drops the stock
-# vendor ramdisk.
+# vendor_boot.img.
 # ============================================================
 
 BOARD_VENDOR_RAMDISK_FRAGMENTS += stock
 
 BOARD_VENDOR_RAMDISK_FRAGMENT.stock.MKBOOTIMG_ARGS += --ramdisk_type PLATFORM
-BOARD_VENDOR_RAMDISK_FRAGMENT.stock.prebuilt_ramdisk := $(DEVICE_PATH)/prebuilt/stock_ramdisk.cpio.lz4
+BOARD_VENDOR_RAMDISK_FRAGMENT.stock.PREBUILT := $(DEVICE_PATH)/prebuilt/stock_ramdisk.cpio.lz4
 
 # ============================================================
 # vendor_dlkm modules
